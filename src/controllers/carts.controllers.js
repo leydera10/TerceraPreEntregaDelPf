@@ -32,7 +32,7 @@ async function getCartById(req, res) {
 async function getUserCart(req, res) {
     console.log("paso1funcion")
     try {
-        console.log("FUNCA")
+        console.log("Ojo")
         // Obtener el token del encabezado de la solicitud
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {

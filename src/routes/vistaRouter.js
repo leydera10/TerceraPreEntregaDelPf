@@ -17,7 +17,7 @@ router.get("/", async (req, res)=>{
         const contenidoJson = await fs.promises.readFile("products.json", "utf-8"); // revisar await en caso de error
         const productos = JSON.parse(contenidoJson);
 
-        console.log("alo")
+        console.log("Todo ok ")
         res.render("home", {/* productos */})
 
     } catch{

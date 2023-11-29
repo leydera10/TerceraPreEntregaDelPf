@@ -37,7 +37,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());// revisar si funciona
 
 io.on('connection', (socket) => {
-    console.log('Cliente conectado');
+    console.log('Done Conect');
   
     socket.emit('conexion-establecida', 'Conexión exitosa con el servidor de Socket.IO');
     socket.on('disconnect', () => {
