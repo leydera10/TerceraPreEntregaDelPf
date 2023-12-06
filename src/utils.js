@@ -1,8 +1,6 @@
-
-
-
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 
 
 /* -El hashSync toma el password que le pasemos y procedera a aplicar un proseso de 
@@ -50,6 +48,7 @@ const authToken = (req, res, next) => {
     next();
   });
 };
+
 
 
 module.exports = {

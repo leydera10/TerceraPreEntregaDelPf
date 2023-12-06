@@ -5,6 +5,8 @@ const productsRouter = require("./routes/productRouter.js");
 const vistaRouter = require("./routes/vistaRouter.js");
 const userRouter = require("./routes/usersRouter.js");
 const sessionRouter = require("./routes/sessionsRouter.js");
+const mailRouter = require("./routes/mailRouter");
+const mockingproducts = require("./routes/mockingRouter.js")
 const passporConfig = require("./config/passport.config.js");
 const { isUtf8 } = require("buffer");
 const fs = require("fs");
@@ -75,7 +77,9 @@ app.use("/", cartRouter);
 app.use("/", productsRouter); 
 app.use("/", vistaRouter);
 app.use("/", userRouter);
-app.use("/", sessionRouter)
+app.use("/", sessionRouter);
+app.use("/", mailRouter);
+app.use("/", mockingproducts);
 
 
 

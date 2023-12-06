@@ -136,36 +136,4 @@ function checkRole(rol) {
   }  
 }
 
-
 module.exports = { initializePassport, checkRole };
-
-
-
-
-
-
-
-
-
-
-
-
-/* // aqui se verifica la validez del token y se obtiene el usuario del payload si el token es válido
-  passport.use("jwt", new JwtStrategy({
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: PRIVATE_KEY, 
-  }, (payload, done) => { 
-    console.log('JWT Strategy - Payload:', payload);
-    // se busca el usuario en la base de datos por email (lleva el nombre email id )   
-    userModel.findOne({ email: payload.sub }, (err, user) => {
-      if (err) {
-        return done(err, false);
-      }
-      if (user) {
-        console.log('JWT Strategy - User:', user);
-        return done(null, user);
-      } else {
-        return done(null, false);
-      }
-    });
-  })); */

@@ -42,25 +42,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }); 
 
 
-  const carritoBtn = document.getElementById("carrito-compra");
-  console.log(carritoBtn);
-  async function obtenerIdCarrito() {
-    console.log('Ejecutando obtenerIdCarrito')
-    try {
-      console.log("pasando1")
-      const response = await fetch("/api/carts/getusercart", {
-        method: 'GET', // Agrega el método GET
-        headers: {
-          'Content-Type': 'application/json',
-          
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        return data.cart; // Asegúrate de usar la propiedad correcta que contiene el ID del carrito
+  const carritoBtn = document.getElementById("carrito-compra");
+
+  async function obtenerIdCarrito() {
+    try {
+      const userResponse = await fetch("/api/carts/getusercart", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+    
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        return userData.cartId;
       } else {
-        const errorData = await response.json();
+        const errorData = await userResponse.json();
         console.error('No se pudo obtener el ID del carrito:', errorData);
         return null;
       }
@@ -69,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return null;
     }
   }
-
+  
   if (carritoBtn) {
     carritoBtn.addEventListener("click", async () => {
       try {
@@ -84,6 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+
 
   
   const formulario = document.getElementById("messageForm");
@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   //EVENTO LOGIN antiguo
   const loginForm = document.getElementById("loginForm");
-  if(loginForm){
+  if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
   
@@ -146,9 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
   
-      // en la ruta tenia /api/session/login
       try {
-  
         const response = await fetch("/login", {
           method: "POST",
           headers: {
@@ -156,11 +154,11 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           body: JSON.stringify({ email, password })
         });
-        console.log("response", response)
+  
         if (response.ok) {
           const data = await response.json();
           const token = data.token;
-          console.log(token)
+          console.log("token desde script", token);
           // Almacena el token en localStorage para sesiones posteriores (opcional)
           /* localStorage.setItem("token", token); */
   
@@ -169,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`
+              Authorization: `Bearer ${token}`
             }
           });
   
@@ -178,12 +176,45 @@ document.addEventListener("DOMContentLoaded", () => {
             const { rol } = userData;
   
             if (rol === "admin") {
+              console.log("Redirigiendo a la página de perfil de administrador");
               window.location.href = "/profile"; // Redirige a la página de perfil de administrador
             } else {
+              console.log("Redirigiendo a la página de productos para usuarios");
               window.location.href = "/allproducts"; // Redirige a la página de productos para usuarios
             }
           } else {
-            alert("Error al obtener información del usuario. Por favor, inténtalo de nuevo más tarde.");
+            alert(
+              "Error al obtener información del usuario. Por favor, inténtalo de nuevo más tarde."
+            );
+          }
+  
+          // Después de haber redirigido al usuario, ahora puedes enviar el correo electrónico
+          try {
+            console.log("pasaporelmail")
+            const message = document.getElementById("mailmessage").value;
+            if (message.trim() !== "") {
+              const emailResponse = await fetch("/enviar-correo", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ email, mensaje: message })
+              });
+          
+              if (emailResponse.ok) {
+                const emailData = await emailResponse.json();
+                console.log(emailData.message); // Mensaje del servidor después de enviar el correo
+              } else {
+                console.error("Error al enviar el correo");
+                // Manejo de errores
+              }
+            } else {
+              console.log("No se ha ingresado ningún mensaje. El correo no será enviado.");
+            }
+          } catch (error) {
+            console.error("Error al enviar el correo:", error);
+            // Manejo de errores
           }
         } else {
           alert("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.");
@@ -201,183 +232,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
-
-
-
-
-
-//EVENTO LOGIN antiguo
-/* const loginForm = document.getElementById("loginForm");
-
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  // Verificar que se ingresen email y contraseña
-  if (email.trim() === "" || password.trim() === "") {
-    alert("Por favor, ingresa tu email y contraseña.");
-    return;
-  }
-
-  // en la ruta tenia /api/session/login
-  try {
-    
-    const response = await fetch("/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password })
-    });
-    console.log("response", response)
-    if (response.ok) {
-      const data = await response.json();
-      const token = data.token;
-      console.log(token)
-      // Almacena el token en localStorage para sesiones posteriores (opcional)
-      /* localStorage.setItem("token", token); 
-      
-      // Determina la redirección según el rol del usuario
-      const userResponse = await fetch("/api/sessions/user", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        const { rol } = userData;
-
-        if (rol === "admin") {
-          window.location.href = "/profile"; // Redirige a la página de perfil de administrador
-        } else {
-          window.location.href = "/allproducts"; // Redirige a la página de productos para usuarios
-        }
-      } else {
-        alert("Error al obtener información del usuario. Por favor, inténtalo de nuevo más tarde.");
-      }
-    } else {
-      alert("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
-  }
-}); */
-
-
-//EVENTO LOGIN NUEVO
-/* const loginForm = document.getElementById("loginForm");
-  
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  // Verificar que se ingresen email y contraseña
-  if (email.trim() === "" || password.trim() === "") {
-    alert("Por favor, ingresa tu email y contraseña.");
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/sessions/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-  
-    if (response.ok) {
-      const data = await response.json();
-      const token = data.token;
-      localStorage.setItem("token", token);
-      alert("Inicio de sesión exitoso");
-    
-      // Realiza una nueva solicitud para obtener la información del usuario
-      const userResponse = await fetch("/api/users/me", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-    
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        const userRole = userData.rol;
-      
-        if (userRole === "admin") {
-          window.location.href = "/profile"; // Redirige a la página de perfil de administrador
-        } else {
-          window.location.href = "/allproducts"; // Redirige a la página de productos para usuarios normales
-        }
-      } else {
-        alert("Error al obtener información del usuario. Por favor, inténtalo de nuevo.");
-      }
-    } else {
-      alert("Correo o contraseña incorrectos. Por favor, inténtalo de nuevo.");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
-  }
-}); */
-
-
-//EVENTO LOGIN prueba
-/* const loginForm = document.getElementById("loginForm");
-
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  // Verificar que se ingresen email y contraseña
-  if (email.trim() === "" || password.trim() === "") {
-    alert("Por favor, ingresa tu email y contraseña.");
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/sessions/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const token = data.token;
-      console.log(token)
-      await handleSuccessfulLogin(token);
-    } else {
-      alert("Correo o password incorrectos. Por favor, inténtalo de nuevo.");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.");
-  }
-});
-
-async function handleSuccessfulLogin(token) {
-  const response = await fetch("/api/sessions/allproducts", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    }
-  });
-
-  if (response.ok) {
-    alert("Inicio de sesión exitoso");
-    
-  } else {
-    alert("Error al obtener los productos. Por favor, inténtalo de nuevo más tarde.");
-  }
-} */
